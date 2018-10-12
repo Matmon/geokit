@@ -1,4 +1,5 @@
 require 'net/http'
+require 'net/https'
 require 'ipaddr'
 require 'rexml/document'
 require 'yaml'
@@ -129,15 +130,32 @@ module Geokit
       private
 
       # Wraps the geocoder call around a proxy if necessary.
+      #Drop proxy and auth support and setup SSL for Google 
       def self.do_get(url)
+         
+       response = nil
+
         uri = URI.parse(url)
-        req = Net::HTTP::Get.new(url)
-        req.basic_auth(uri.user, uri.password) if uri.userinfo
-        res = Net::HTTP::Proxy(GeoKit::Geocoders::proxy_addr,
-                GeoKit::Geocoders::proxy_port,
-                GeoKit::Geocoders::proxy_user,
-                GeoKit::Geocoders::proxy_pass).start(uri.host, uri.port) { |http| http.get(uri.path + "?" + uri.query) }
-        return res
+        use_ssl = true
+
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = use_ssl
+
+        http.start do |http|
+                req = Net::HTTP::Get.new(uri.request_uri)
+                response = http.request(req)
+        end
+
+        return response
+
+#        uri = URI.parse(url)
+#        req = Net::HTTP::Get.new(url)
+#        req.basic_auth(uri.user, uri.password) if uri.userinfo
+#        res = Net::HTTP::Proxy(GeoKit::Geocoders::proxy_addr,
+#                GeoKit::Geocoders::proxy_port,
+#                GeoKit::Geocoders::proxy_user,
+#                GeoKit::Geocoders::proxy_pass).start(uri.host, uri.port) { |http| http.get(uri.path + "?" + uri.query) }
+#        return res
       end
 
       # Adds subclass' geocode method making it conveniently available through

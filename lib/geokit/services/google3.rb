@@ -71,9 +71,9 @@ module Geokit
         if !Geokit::Geocoders::google_client_id.nil? and !Geokit::Geocoders::google_cryptographic_key.nil?
           urlToSign = query_string + "&client=#{Geokit::Geocoders::google_client_id}" + "#{(!Geokit::Geocoders::google_channel.nil? ? ("&channel="+ Geokit::Geocoders::google_channel) : "")}"
           signature = sign_gmap_bus_api_url(urlToSign, Geokit::Geocoders::google_cryptographic_key)
-          "http://maps.googleapis.com" + urlToSign + "&signature=#{signature}"
+          "https://maps.googleapis.com" + urlToSign + "&signature=#{signature}"
         else
-          "http://maps.google.com" + query_string
+          "https://maps.google.com" + query_string + "&key=#{Geokit::Geocoders::google}"
         end
       end
 
